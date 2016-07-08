@@ -38,16 +38,15 @@ $config = [
             ],
         ],
         'db' => require(__DIR__ . '/db.php'),
-        /*
         'urlManager' => [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
             'rules' => [
             ],
         ],
-        */
     ],
     'params' => $params,
+    'defaultRoute' => 'doctor/index'
 ];
 
 if (YII_ENV_DEV) {
