@@ -42,6 +42,7 @@ $config = [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
             'rules' => [
+                'doctor/calendar/<doctorId:\d+>' => 'doctor/calendar',
             ],
         ],
     ],

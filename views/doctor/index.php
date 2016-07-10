@@ -18,7 +18,7 @@ $this->title = 'Запись на прием к врачу. Выберите д�
                 <div class="col-lg-4">
                     <h2><?php echo $doctor->name ?></h2>
                     <p><?php echo $doctor->description ?></p>
-                    <p><a class="btn btn-default" href="<?php echo Url::to(['doctor/calendar', 'id' => $doctor->id]); ?>">Записаться &raquo;</a></p>
+                    <p><a class="btn btn-default" href="<?php echo Url::to(['doctor/calendar', 'doctorId' => $doctor->id]); ?>">Записаться &raquo;</a></p>
                 </div>
             <?php endforeach; ?>
         </div>
