@@ -18,6 +18,8 @@ use yii\db\Expression;
  */
 class Doctor extends ActiveRecord
 {
+    protected $_scheduleScheme = null;
+
     /**
      * @inheritdoc
      */
@@ -40,5 +42,100 @@ class Doctor extends ActiveRecord
                 'value' => new Expression('NOW()'),
             ],
         ];
+    }
+
+    /**
+     * Проверяет свободен ли день для приема врачем
+     * 
+     * @param \DateTime $date
+     * @return bool
+     */
+    public function dayIsAvailable($date)
+    {
+        $res = true;
+
+        $scheduleScheme = $this->getScheduleScheme();
+        $day = strtolower($date->format('l'));
+
+        if (
+            !empty($scheduleScheme['dayOffs']) &&
+            in_array($day, $scheduleScheme['dayOffs'])
+        ) {
+            $res = false;
+        }
+
+        return $res;
+    }
+
+    /**
+     * Возращает шаблон расписания врача
+     * 
+     * @return array
+     */
+    public function getScheduleScheme()
+    {
+        if (!isset($this->_scheduleScheme)) {
+            $this->_scheduleScheme = \Yii::$app->params['schedule'];
+        }
+        return $this->_scheduleScheme;
+    }
+
+    /**
+     * Возвращает текущее расписание врача на дату
+     *
+     * @param \DateTime $date
+     * @return array
+     */
+    public function getSchedule($date)
+    {
+        $now = new \DateTime('-' . Schedule::RESERVING_DELAY);
+        $scheduleRecords = Schedule::find()->where(
+            [
+                'and',
+                [
+                    'and',
+                    ['doctor_id' => $this->id],
+                    ['date' => $date->format('Y-m-d')],
+                ],
+                [
+                    'or',
+                    ['reserve_status' => Schedule::RESERVE_STATUS_RESERVED],
+                    [
+                        'and',
+                        ['reserve_status' => Schedule::RESERVE_STATUS_RESERVING],
+                        ['>=', 'added', $now->format('Y-m-d H:i:s')]
+                    ]
+                ],
+            ]
+        )->asArray()->all();
+        $scheduleRecordsA = [];
+        foreach ($scheduleRecords as $scheduleRecord) {
+            $key = $this->intTimeToStr($scheduleRecord['time_from']) . '-' .
+                $this->intTimeToStr($scheduleRecord['time_to']);
+            $scheduleRecordsA[$key] = $scheduleRecord;
+        }
+
+        $schedule = [];
+        $scheduleScheme = $this->getScheduleScheme();
+        $day = strtolower($date->format('l'));
+        foreach ($scheduleScheme as $d => $times) {
+            if ($d != $day) {
+                continue;
+            }
+            foreach ($times as $time) {
+                list($from, $to) = explode('-', $time);
+                $schedule[] = [
+                    'from' => $from,
+                    'to' => $to,
+                    'busy' => isset($scheduleRecordsA[$time]),
+                ];
+            }
+        }
+        return $schedule;
+    }
+
+    protected function intTimeToStr($time)
+    {
+        return substr_replace(sprintf("%'.04d", $time), ':', 2, 0);
     }
 }

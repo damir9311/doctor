@@ -43,6 +43,7 @@ $config = [
             'showScriptName' => false,
             'rules' => [
                 'doctor/calendar/<doctorId:\d+>' => 'doctor/calendar',
+                'doctor/<doctorId:\d+>/time/<date:(\d{4}-\d{2}-\d{2})>' => 'doctor/time',
             ],
         ],
     ],

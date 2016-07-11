@@ -23,8 +23,27 @@ class DoctorController extends Controller
         return $this->render(
             'calendar',
             [
-                'schedule' => \Yii::$app->params['schedule'],
+                'schedule' => $doctor->getScheduleScheme(),
                 'doctor' => $doctor,
+            ]
+        );
+    }
+    
+    public function actionTime($doctorId, $date)
+    {
+        $doctor = Doctor::findOne(['id' => $doctorId]);
+        if (!$doctor) {
+            throw new \yii\web\NotFoundHttpException();
+        }
+        $date = new \DateTime($date);
+        if (!$doctor->dayIsAvailable($date)) {
+            throw new \yii\web\ForbiddenHttpException();
+        }
+        return $this->render(
+            'time',
+            [
+                'doctor' => $doctor,
+                'date' => $date,
             ]
         );
     }
