@@ -5,6 +5,7 @@ namespace app\controllers;
 
 use app\models\Doctor;
 use yii\web\Controller;
+use yii\web\Response;
 
 class DoctorController extends Controller
 {
@@ -36,7 +37,7 @@ class DoctorController extends Controller
             throw new \yii\web\NotFoundHttpException();
         }
         $date = new \DateTime($date);
-        if (!$doctor->dayIsAvailable($date)) {
+        if (!$doctor->isAvailableForDate($date)) {
             throw new \yii\web\ForbiddenHttpException();
         }
         return $this->render(
@@ -46,5 +47,33 @@ class DoctorController extends Controller
                 'date' => $date,
             ]
         );
+    }
+
+    public function actionReserve()
+    {
+        if (\Yii::$app->request->isAjax) {
+            // TODO: можно запилить проверки параметров
+            $doctorId = \Yii::$app->request->post('doctor_id');
+            $time = \Yii::$app->request->post('time');
+            $date = \Yii::$app->request->post('date');
+            $date = new \DateTime($date);
+
+            $doctor = Doctor::findOne(['id' => $doctorId]);
+            if (!$doctor) {
+                throw new \yii\web\NotFoundHttpException();
+            }
+
+            if ($doctor->isAvailableForDateTime($date, $time)) {
+                $schedule = $doctor->startReserveTime($date, $time);
+                $res = ['reserve_id' => $schedule->id];
+            } else {
+                $res = ['reserved' => false];
+            }
+
+            \Yii::$app->response->format = Response::FORMAT_JSON;
+            return $res;
+        } else {
+            throw new \yii\web\ForbiddenHttpException();
+        }
     }
 }

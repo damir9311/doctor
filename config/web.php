@@ -48,7 +48,8 @@ $config = [
         ],
     ],
     'params' => $params,
-    'defaultRoute' => 'doctor/index'
+    'defaultRoute' => 'doctor/index',
+    'timezone' => 'Etc/GMT-3',
 ];
 
 if (YII_ENV_DEV) {

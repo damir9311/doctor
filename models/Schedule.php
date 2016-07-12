@@ -52,4 +52,38 @@ class Schedule extends ActiveRecord
 
     // TODO: сделать валидацию полей $time_from, $time_to, $reserve_status
     // TODO: прописать belongs_to и has_many
+
+    /**
+     * Заполняет поля $time_from и $time_to из строки вида "10:00-11:00"
+     *
+     * @param string $time
+     */
+    public function setTime($time)
+    {
+        list($from, $to) = explode('-', $time);
+        $this->time_from = static::formatTimeFromString($from);
+        $this->time_to = static::formatTimeFromString($to);
+    }
+
+    /**
+     * Форматирует числовое представление времени в читаемый вид
+     *
+     * @param int $time
+     * @return string
+     */
+    public static function formatTimeToString($time)
+    {
+        return substr_replace(sprintf("%'.04d", $time), ':', 2, 0);
+    }
+    
+    /**
+     * Форматирует строковое представление времени в числовое
+     *
+     * @param string $time
+     * @return int
+     */
+    public static function formatTimeFromString($time)
+    {
+        return intval(str_replace(':', '', $time));
+    }
 }

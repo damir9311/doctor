@@ -50,7 +50,7 @@ class Doctor extends ActiveRecord
      * @param \DateTime $date
      * @return bool
      */
-    public function dayIsAvailable($date)
+    public function isAvailableForDate($date)
     {
         $res = true;
 
@@ -64,6 +64,28 @@ class Doctor extends ActiveRecord
             $res = false;
         }
 
+        return $res;
+    }
+
+    /**
+     * Проверяет свободное время на дату
+     *
+     * @param \DateTime $date
+     * @param int $time
+     * @return bool
+     */
+    public function isAvailableForDateTime($date, $time)
+    {
+        $res = false;
+        if ($this->isAvailableForDate($date)) {
+            $scheduleRecords = $this->getSchedule($date);
+            foreach ($scheduleRecords as $scheduleRecord) {
+                if ($scheduleRecord['time'] == $time && $scheduleRecord['busy'] === false) {
+                    $res = true;
+                    break;
+                }
+            }
+        }
         return $res;
     }
 
@@ -110,8 +132,8 @@ class Doctor extends ActiveRecord
         )->asArray()->all();
         $scheduleRecordsA = [];
         foreach ($scheduleRecords as $scheduleRecord) {
-            $key = $this->intTimeToStr($scheduleRecord['time_from']) . '-' .
-                $this->intTimeToStr($scheduleRecord['time_to']);
+            $key = Schedule::formatTimeToString($scheduleRecord['time_from']) .
+                '-' . Schedule::formatTimeToString($scheduleRecord['time_to']);
             $scheduleRecordsA[$key] = $scheduleRecord;
         }
 
@@ -123,10 +145,8 @@ class Doctor extends ActiveRecord
                 continue;
             }
             foreach ($times as $time) {
-                list($from, $to) = explode('-', $time);
                 $schedule[] = [
-                    'from' => $from,
-                    'to' => $to,
+                    'time' => $time,
                     'busy' => isset($scheduleRecordsA[$time]),
                 ];
             }
@@ -134,8 +154,23 @@ class Doctor extends ActiveRecord
         return $schedule;
     }
 
-    protected function intTimeToStr($time)
+    /**
+     * Помечает время как зарезервированное на время 
+     * (до полного бронирования, т.е. заполнение всей формы).
+     * 
+     * @param \DateTime $date
+     * @param string $time
+     * @return Schedule
+     */
+    public function startReserveTime($date, $time)
     {
-        return substr_replace(sprintf("%'.04d", $time), ':', 2, 0);
+        $schedule = new Schedule();
+        $schedule->doctor_id = $this->id;
+        $schedule->reserve_status = Schedule::RESERVE_STATUS_RESERVING;
+        $schedule->date = $date->format('Y-m-d');
+        $schedule->setTime($time);
+        $schedule->save();
+        return $schedule;
     }
+
 }
