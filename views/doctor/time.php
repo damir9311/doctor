@@ -80,7 +80,7 @@ JS
                     <a
                         href="#"
                         class="list-group-item <?php echo ($time['busy'] === false ? 'list-group-item-success' : 'disabled'); ?>"
-                        data-time="<? echo $time['time']; ?>"
+                        data-time="<?php echo $time['time']; ?>"
                     >
                         <div class="row">
                             <div class="col-md-8"><label><?php echo $time['time']; ?></label></div>
