@@ -9,6 +9,13 @@ use yii\helpers\Url;
 $this->title = 'Запись на прием к врачу. Выберите время.';
 
 $ajaxUrl = Url::to(['doctor/reserve']);
+$reserveIdFormat = '999999999999999999';
+$codeFormat = 'CODE';
+$userDataUrl = Url::to([
+    'doctor/user-data',
+    'reserveId' => $reserveIdFormat,
+    'code' => $codeFormat,
+]);
 
 $this->registerJs(
 <<<JS
@@ -25,7 +32,8 @@ $this->registerJs(
                     success: function(data, textStatus, jqXHR) {
                         if (typeof data === 'object') {
                             if (data['reserve_id']) {
-                                alert('Вы успешно записаны на прием!');
+                                location.href = 
+                                    '{$userDataUrl}'.replace('{$reserveIdFormat}', data['reserve_id']).replace('{$codeFormat}', data['code']);
                             } else {
                                 alert('К сожалению, выбранное время уже занято!');
                                 el.removeClass('active');
@@ -35,6 +43,9 @@ $this->registerJs(
                         } else {
                             alert('Что-то пошло не так, попробуйте повторить запрос.');
                         }
+                    },
+                    error: function(data) {
+                        alert('Что-то пошло не так, попробуйте повторить запрос.');
                     },
                     dataType: 'json'
                 });

@@ -86,4 +86,45 @@ class Schedule extends ActiveRecord
     {
         return intval(str_replace(':', '', $time));
     }
+
+    /**
+     * Проверяет доступна ли запись расписания для брони
+     * @return bool
+     */
+    public function isAvailableForReserve()
+    {
+        $now = new \DateTime('-' . self::RESERVING_DELAY);
+        return !self::find()->where(
+            [
+                'and',
+                [
+                    'and',
+                    ['doctor_id' => $this->doctor_id],
+                    ['date' => $this->date],
+                    ['time_from' => $this->time_from],
+                    ['time_to' => $this->time_to],
+                    ['<>', 'id', $this->id]
+                ],
+                [
+                    'or',
+                    ['reserve_status' => self::RESERVE_STATUS_RESERVED],
+                    [
+                        'and',
+                        ['reserve_status' => self::RESERVE_STATUS_RESERVING],
+                        ['>=', 'added', $now->format('Y-m-d H:i:s')]
+                    ]
+                ],
+            ]
+        )->exists();
+    }
+
+    /**
+     * Возвращает данные клиента, который записался на данное время
+     *
+     * @return array
+     */
+    public function getClientData()
+    {
+        return json_decode($this->client_data);
+    }
 }
