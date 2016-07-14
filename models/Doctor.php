@@ -58,8 +58,9 @@ class Doctor extends ActiveRecord
         $day = strtolower($date->format('l'));
 
         if (
-            !empty($scheduleScheme['dayOffs']) &&
-            in_array($day, $scheduleScheme['dayOffs'])
+            (!empty($scheduleScheme['dayOffs']) &&
+                in_array($day, $scheduleScheme['dayOffs'])) ||
+            empty($scheduleScheme[$day])
         ) {
             $res = false;
         }
@@ -164,6 +165,7 @@ class Doctor extends ActiveRecord
      */
     public function startReserveTime($date, $time)
     {
+        // todo: проверка что время не занято
         $schedule = new Schedule();
         $schedule->doctor_id = $this->id;
         $schedule->reserve_status = Schedule::RESERVE_STATUS_RESERVING;
