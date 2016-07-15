@@ -23,7 +23,7 @@ $this->registerJsFile('@web/js/ru.js', ['depends' => 'yii\web\JqueryAsset']);
 
 $this->registerJs(
 <<<JS
-    $(document).ready(function() {
+    var app = (function() {
         var weekdays = { 
             0: "sunday",
             1: "monday",
@@ -34,6 +34,14 @@ $this->registerJs(
             6: "saturday",
         };
         var dayOffs = {{$dayOffs}};
+        return {
+            isDateAvailable: function(date) {
+                return  !dayOffs[weekdays[date.getDay()]];
+            }
+        };
+    }());
+
+    $(document).ready(function() {
         var selectedDate = null;
     
         $('#calendar').fullCalendar({
@@ -44,17 +52,17 @@ $this->registerJs(
             },
             events: [],
             dayRender: function(date, cell) {
-                if (dayOffs[weekdays[date.toDate().getDay()]]) {
+                if (!app.isDateAvailable(date.toDate())) {
                     cell.css("background-color", "#ffb3b3");
                 }
             },
             dayClick: function(date, jsEvent, view) {
-                if (dayOffs[weekdays[date.toDate().getDay()]]) {
-                    alert('К сожалению, выбранная дата не доступна!');
-                } else {
+                if (app.isDateAvailable(date.toDate())) {
                     $(".fc-state-highlight2").removeClass("fc-state-highlight2");
                     $(jsEvent.target).addClass("fc-state-highlight2");
                     selectedDate = date.toDate();
+                } else {
+                    alert('К сожалению, выбранная дата не доступна!');
                 }
             }
         });
@@ -77,8 +85,8 @@ JS
         <h1>Выберите дату</h1>
     </div>
     <div class="body-content">
-        <div><p class="lead"><?php echo $doctor->name ?></p></div>
-        <div><p class="lead"><?php echo $doctor->description ?></p></div>
+        <div><p class="lead"><?php echo $doctor->name; ?></p></div>
+        <div><p class="lead"><?php echo $doctor->description; ?></p></div>
 
         <div id='calendar'></div>
 
