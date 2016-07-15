@@ -16,7 +16,7 @@ class DoctorTest extends TestCase
      */
     protected function getDoctor()
     {
-        /** @var Doctor $doctor */
+        /** @var Doctor $stubDoctor */
         $stubDoctor = Stub::make(
             'app\models\Doctor',
             [
