@@ -1,102 +1,38 @@
-Yii 2 Basic Project Template
+Запись к врачу на прием
 ============================
 
-Yii 2 Basic Project Template is a skeleton [Yii 2](http://www.yiiframework.com/) application best for
-rapidly creating small projects.
+### Постановка задачи
 
-The template contains the basic features including user login/logout and a contact page.
-It includes all commonly used configurations that would allow you to focus on adding new
-features to your application.
+Нужно написать упрощенную систему записи на прием к врачу.
 
-[![Latest Stable Version](https://poser.pugx.org/yiisoft/yii2-app-basic/v/stable.png)](https://packagist.org/packages/yiisoft/yii2-app-basic)
-[![Total Downloads](https://poser.pugx.org/yiisoft/yii2-app-basic/downloads.png)](https://packagist.org/packages/yiisoft/yii2-app-basic)
-[![Build Status](https://travis-ci.org/yiisoft/yii2-app-basic.svg?branch=master)](https://travis-ci.org/yiisoft/yii2-app-basic)
+Есть посетитель, врачи клиники и система.
 
-DIRECTORY STRUCTURE
+Посетитель может выбрать нужного ему врача, выбрать интересующую дату и увидеть ленту записи на прием.
+
+Посетитель находит свободное время кликает "записаться" на приём, система фиксирует, что указанное время занято.
+
+Если у врача на указанную дату нет свободной записи при попытке выбрать дату пользователю должна сообщаться информация, что записи на этот день больше нет.
+
+
+Структура проекта
 -------------------
 
-      assets/             contains assets definition
-      commands/           contains console commands (controllers)
-      config/             contains application configurations
-      controllers/        contains Web controller classes
-      mail/               contains view files for e-mails
-      models/             contains model classes
-      runtime/            contains files generated during runtime
-      tests/              contains various tests for the basic application
-      vendor/             contains dependent 3rd-party packages
-      views/              contains view files for the Web application
-      web/                contains the entry script and Web resources
+      config/params.php                       конфигурация рабочих и выходных дней врачей, в данной реализации общая для всех
+      controllers/DoctorController.php        контроллеры
+      migrations/                             миграции и фикстуры по заполнению тестовыми данными
+      models/ClientDataForm.php               модель формы ввода данных клиента, который записывается к врачу
+      models/Doctor.php                       модель хранения данных о враче, также логика по вычислению расписания и записи к нему же
+      models/Schedule.php                     модель хранения данных расписания врача
+      views/index.php                         страница со списком врачей 
+      views/calendar.php                      выбор даты приема к врачу 
+      views/time.php                          выбор времени приема к врачу 
+      views/user_data.php                     ввод данных клиента 
+      views/reserve_done.php                  страница с успешной записью к врачу 
+      tests/unit/DoctorTest.php               тесты на расписание врача
 
 
 
-REQUIREMENTS
+Демонстрационный стенд
 ------------
 
-The minimum requirement by this project template that your Web server supports PHP 5.4.0.
-
-
-INSTALLATION
-------------
-
-### Install from an Archive File
-
-Extract the archive file downloaded from [yiiframework.com](http://www.yiiframework.com/download/) to
-a directory named `basic` that is directly under the Web root.
-
-Set cookie validation key in `config/web.php` file to some random secret string:
-
-```php
-'request' => [
-    // !!! insert a secret key in the following (if it is empty) - this is required by cookie validation
-    'cookieValidationKey' => '<secret random string goes here>',
-],
-```
-
-You can then access the application through the following URL:
-
-~~~
-http://localhost/basic/web/
-~~~
-
-
-### Install via Composer
-
-If you do not have [Composer](http://getcomposer.org/), you may install it by following the instructions
-at [getcomposer.org](http://getcomposer.org/doc/00-intro.md#installation-nix).
-
-You can then install this project template using the following command:
-
-~~~
-php composer.phar global require "fxp/composer-asset-plugin:~1.1.1"
-php composer.phar create-project --prefer-dist --stability=dev yiisoft/yii2-app-basic basic
-~~~
-
-Now you should be able to access the application through the following URL, assuming `basic` is the directory
-directly under the Web root.
-
-~~~
-http://localhost/basic/web/
-~~~
-
-
-CONFIGURATION
--------------
-
-### Database
-
-Edit the file `config/db.php` with real data, for example:
-
-```php
-return [
-    'class' => 'yii\db\Connection',
-    'dsn' => 'mysql:host=localhost;dbname=yii2basic',
-    'username' => 'root',
-    'password' => '1234',
-    'charset' => 'utf8',
-];
-```
-
-**NOTES:**
-- Yii won't create the database for you, this has to be done manually before you can access it.
-- Check and edit the other files in the `config/` directory to customize your application as required.
-- Refer to the README in the `tests` directory for information specific to basic application tests.
+[demo-doctor.platon-consulting.ru](http://demo-doctor.platon-consulting.ru)
